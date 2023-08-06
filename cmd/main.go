@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"example.com/Transform-JSON/transform"
+	"github.com/lamrin13/reshape-json/transform"
 )
 
 func main() {
