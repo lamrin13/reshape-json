@@ -2,6 +2,7 @@ package transform
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 )
 
@@ -19,12 +20,16 @@ func (mappingConfig MappingConfig) Reshape(input []byte) ([]byte, error) {
 	for key, value := range mappingConfig {
 		var formattedValue any
 		if strings.Contains(value, "+") {
-			subKeys := strings.Split(value, "+")
+			separator, err := getSeparator(value)
+			if err != nil {
+				return nil, err
+			}
+			subKeys := strings.Split(strings.Split(value, "/")[0], "+")
 			var stringVals []string
 			for _, v := range subKeys {
 				stringVals = append(stringVals, original[v].(string))
 			}
-			formattedValue = strings.Join(stringVals, "-")
+			formattedValue = strings.Join(stringVals, separator)
 		} else {
 			formattedValue = original[value]
 		}
@@ -48,4 +53,16 @@ func (mappingConfig MappingConfig) Reshape(input []byte) ([]byte, error) {
 		}
 	}
 	return json.Marshal(desired)
+}
+
+func getSeparator(value string) (string, error) {
+	elems := strings.Split(value, "/")
+	switch l := len(elems); l {
+	case 1:
+		return " ", nil
+	case 2:
+		return elems[1], nil
+	default:
+		return "", errors.New("multiple / found in config for " + value)
+	}
 }

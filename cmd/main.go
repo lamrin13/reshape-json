@@ -8,22 +8,24 @@ import (
 
 func main() {
 	original := `{
-		"name": "Nirmal",
-		"street": "ssss",
+		"name": "John",
+		"street": "Dongg Street",
 		"unit": "12",
 		"role": "SWE",
 		"last4": "1234",
 		"expiryMonth": 12,
-		"expiryYear": 2023
+		"expiryYear": 2023,
+		"fruits": ["Apple", "Banana", "Orange"]
 	}`
 
 	mappingConfig := transform.MappingConfig{
-		"user.name":         "name",
-		"user.role":         "role",
-		"card.lastFour":     "last4",
-		"card.expiry.Month": "expiryMonth",
-		"card.expiry.Year":  "expiryYear",
-		"address":           "unit+street",
+		"user.name":          "name",
+		"user.role":          "role",
+		"card.lastFour":      "last4",
+		"card.expiry.Month":  "expiryMonth",
+		"card.expiry.Year":   "expiryYear",
+		"address":            "unit+street/-",
+		"user.favoriteFoods": "fruits",
 	}
 
 	desiredJSON, err := mappingConfig.Reshape([]byte(original))

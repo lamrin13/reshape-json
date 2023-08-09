@@ -1,0 +1,10 @@
+{
+    "name": "John",
+    "street": "Dongg Street",
+    "unit": "12",
+    "role": "SWE",
+    "last4": "1234",
+    "expiryMonth": 12,
+    "expiryYear": 2023,
+    "fruits": ["Apple", "Banana", "Orange"]
+}

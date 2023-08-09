@@ -1,0 +1,15 @@
+{
+    "user": {
+        "name": "John",
+        "role": "SWE",
+        "favoriteFoods": ["Apple", "Banana", "Orange"]
+    },
+    "address": "12-Dongg Street",
+    "card": {
+        "lastFour": "1234",
+        "expiry": {
+            "Month": 12,
+            "Year": 2023
+        }
+    }
+}
