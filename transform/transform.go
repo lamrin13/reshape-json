@@ -1,8 +1,10 @@
 package transform
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"strconv"
 	"strings"
 )
 
@@ -10,12 +12,48 @@ type MappingConfig map[string]string
 
 // transformJSON transforms the input JSON data based on the provided mapping configuration.
 func (mappingConfig MappingConfig) Reshape(input []byte) ([]byte, error) {
-	var original map[string]interface{}
+	var original any
 	err := json.Unmarshal(input, &original)
 	if err != nil {
 		return nil, err
 	}
 
+	switch v := original.(type) {
+	case []interface{}:
+		return reshapeArray(v, mappingConfig)
+	case map[string]interface{}:
+		return reshapeObject(v, mappingConfig)
+	default:
+		return nil, errors.New("Invalid JSON input")
+	}
+}
+
+func getSeparator(value string) (string, error) {
+	elems := strings.Split(value, "/")
+	switch l := len(elems); l {
+	case 1:
+		return " ", nil
+	case 2:
+		return elems[1], nil
+	default:
+		return "", errors.New("multiple / found in config for " + value)
+	}
+}
+
+func getStringVal(value interface{}) (string, error) {
+	switch i := value.(type) {
+	case float64:
+		return strconv.FormatFloat(i, 'f', -1, 64), nil
+	case int:
+		return strconv.Itoa(i), nil
+	case string:
+		return i, nil
+	default:
+		return "", errors.New("Only allowed string, float and ints for merging fields")
+	}
+}
+
+func reshapeObject(original map[string]interface{}, mappingConfig MappingConfig) ([]byte, error) {
 	desired := make(map[string]interface{})
 	for key, value := range mappingConfig {
 		var formattedValue any
@@ -27,7 +65,11 @@ func (mappingConfig MappingConfig) Reshape(input []byte) ([]byte, error) {
 			subKeys := strings.Split(strings.Split(value, "/")[0], "+")
 			var stringVals []string
 			for _, v := range subKeys {
-				stringVals = append(stringVals, original[v].(string))
+				strValue, err := getStringVal(original[v])
+				if err != nil {
+					return nil, err
+				}
+				stringVals = append(stringVals, strValue)
 			}
 			formattedValue = strings.Join(stringVals, separator)
 		} else {
@@ -55,14 +97,20 @@ func (mappingConfig MappingConfig) Reshape(input []byte) ([]byte, error) {
 	return json.Marshal(desired)
 }
 
-func getSeparator(value string) (string, error) {
-	elems := strings.Split(value, "/")
-	switch l := len(elems); l {
-	case 1:
-		return " ", nil
-	case 2:
-		return elems[1], nil
-	default:
-		return "", errors.New("multiple / found in config for " + value)
+func reshapeArray(original []interface{}, mappingConfig MappingConfig) ([]byte, error) {
+	desired := make([][]byte, len(original))
+	for i, v := range original {
+		obj := v.(map[string]interface{})
+		tmp, err := reshapeObject(obj, mappingConfig)
+		desired[i] = make([]byte, len(tmp))
+		if err != nil {
+			return nil, err
+		}
+		desired[i] = tmp
 	}
+	var reshapedArray []byte
+	reshapedArray = append(reshapedArray, byte('['))
+	reshapedArray = append(reshapedArray, bytes.Join(desired, []byte(","))...)
+	reshapedArray = append(reshapedArray, byte(']'))
+	return reshapedArray, nil
 }

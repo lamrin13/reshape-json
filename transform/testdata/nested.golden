@@ -4,12 +4,9 @@
         "role": "SWE",
         "favoriteFoods": ["Apple", "Banana", "Orange"]
     },
-    "address": "12-Dongg Street",
+    "address": "12 Dongg Street",
     "card": {
         "lastFour": "1234",
-        "expiry": {
-            "Month": 12,
-            "Year": 2023
-        }
+        "expiry": "12-2023"
     }
-}
+}   

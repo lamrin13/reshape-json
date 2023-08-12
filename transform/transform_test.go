@@ -2,6 +2,7 @@ package transform
 
 import (
 	"encoding/json"
+	"log"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -59,7 +60,7 @@ func TestReshape(t *testing.T) {
 			json.Unmarshal(source, &mappingConfig)
 
 			m := MappingConfig(mappingConfig)
-			var expected, returned map[string]interface{}
+			var expected, returned any
 			json.Unmarshal(golden, &expected)
 
 			returnedJSON, err := m.Reshape(original)
@@ -67,6 +68,7 @@ func TestReshape(t *testing.T) {
 				t.Errorf(err.Error())
 			}
 			json.Unmarshal(returnedJSON, &returned)
+			log.Println(returned, expected)
 			if !reflect.DeepEqual(expected, returned) {
 				t.Errorf("Expected %s\n, Got %s", golden, returnedJSON)
 			}
