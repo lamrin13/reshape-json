@@ -1,0 +1,21 @@
+{
+    "user": {
+        "name": "John",
+        "role": "SWE",
+        "favoriteFoods": [
+            {
+                "o1": "John",
+                "o2": "john.a@abc.com"
+            },
+            {
+                "o1": "Bob",
+                "o2": "bob.b@abc.com"
+            }
+        ]
+    },
+    "card": {
+        "lastFour": "1234",
+        "expiry": "12-2023"
+    },
+    "address": "12 Dongg Street"
+}

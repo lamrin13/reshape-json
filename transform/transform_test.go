@@ -36,8 +36,7 @@ func TestReshape(t *testing.T) {
 
 		testname := testDir.Name()
 
-		// Each path turns into a test: the test name is the filename without the
-		// extension.
+		// Each path turns into a test: the test name is the folder name
 		t.Run(testname, func(t *testing.T) {
 			path := filepath.Join("testdata", testname, testname+".mapping")
 			source, err := os.ReadFile(path)

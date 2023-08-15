@@ -1,0 +1,10 @@
+{
+		"user.name":          "name",
+		"user.role":          "role",
+		"card.lastFour":      "last4",
+		"card.expiry":        "expiryMonth+expiryYear/-",
+		"address":            "unit+street",
+		"user.favoriteFoods": "fruits",
+		"o1":                 "t1",
+		"o2":                 "t2"
+	}

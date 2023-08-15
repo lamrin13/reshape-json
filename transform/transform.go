@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -55,27 +56,55 @@ func getStringVal(value interface{}) (string, error) {
 
 func reshapeObject(original map[string]interface{}, mappingConfig MappingConfig) ([]byte, error) {
 	desired := make(map[string]interface{})
+	var flag bool
 	for key, value := range mappingConfig {
-		var formattedValue any
+		var (
+			formattedValue any
+			err            error
+			separator      string
+		)
+		flag = false
 		if strings.Contains(value, "+") {
-			separator, err := getSeparator(value)
+			separator, err = getSeparator(value)
 			if err != nil {
 				return nil, err
 			}
 			subKeys := strings.Split(strings.Split(value, "/")[0], "+")
 			var stringVals []string
 			for _, v := range subKeys {
+				if _, ok := original[v]; !ok {
+					flag = true
+					break
+				}
 				strValue, err := getStringVal(original[v])
 				if err != nil {
 					return nil, err
 				}
 				stringVals = append(stringVals, strValue)
 			}
-			formattedValue = strings.Join(stringVals, separator)
+			if !flag {
+				formattedValue = strings.Join(stringVals, separator)
+			}
 		} else {
-			formattedValue = original[value]
+			if _, ok := original[value]; !ok {
+				continue
+			}
+			if reflect.TypeOf(original[value]).String() == "[]interface {}" {
+				arrObject := original[value].([]interface{})
+				if reflect.TypeOf(arrObject[0]).String() != "map[string]interface {}" {
+					formattedValue = original[value]
+				} else {
+					formattedBytes, err := reshapeArray(arrObject, mappingConfig)
+					if err != nil {
+						return nil, err
+					}
+					json.Unmarshal(formattedBytes, &formattedValue)
+				}
+			} else {
+				formattedValue = original[value]
+			}
 		}
-		if strings.Contains(key, ".") {
+		if !flag && strings.Contains(key, ".") {
 			nests := strings.Split(key, ".")
 			if _, ok := desired[nests[0]]; !ok {
 				desired[nests[0]] = make(map[string]interface{})
@@ -89,7 +118,7 @@ func reshapeObject(original map[string]interface{}, mappingConfig MappingConfig)
 				prev = temp
 			}
 			prev[nests[len(nests)-1]] = formattedValue
-		} else {
+		} else if !flag {
 			desired[key] = make(map[string]interface{})
 			desired[key] = formattedValue
 		}
