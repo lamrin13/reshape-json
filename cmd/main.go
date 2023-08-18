@@ -14,28 +14,14 @@ func main() {
 		"role": "SWE",
 		"last4": "1234",
 		"expiryMonth": 12,
-		"expiryYear": 2023,
-		"fruits": [
-			{
-				"t1": "John",
-				"t2": "john.a@abc.com"
-			},
-			{
-				"t1": "Bob",
-				"t2": "bob.b@abc.com"
-			}
-		]
+		"expiryYear": 2023
 	}`
 
 	mappingConfig := transform.MappingConfig{
-		"user.name":          "name",
-		"user.role":          "role",
-		"card.lastFour":      "last4",
-		"card.expiry":        "expiryMonth+expiryYear/-",
-		"address":            "unit+street",
-		"user.favoriteFoods": "fruits",
-		"o1":                 "t1",
-		"o2":                 "t2",
+		"user.name":              "name",
+		"user.address":           "unit+street",
+		"user.creditcard.expiry": "expiryMonth+expiryYear/-",
+		"user.role":              "role",
 	}
 
 	desiredJSON, err := mappingConfig.Reshape([]byte(original))

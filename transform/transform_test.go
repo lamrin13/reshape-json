@@ -38,6 +38,7 @@ func TestReshape(t *testing.T) {
 
 		// Each path turns into a test: the test name is the folder name
 		t.Run(testname, func(t *testing.T) {
+			t.Parallel()
 			path := filepath.Join("testdata", testname, testname+".mapping")
 			source, err := os.ReadFile(path)
 			if err != nil {
@@ -67,7 +68,6 @@ func TestReshape(t *testing.T) {
 				t.Errorf(err.Error())
 			}
 			json.Unmarshal(returnedJSON, &returned)
-			log.Println(returned, expected)
 			if !reflect.DeepEqual(expected, returned) {
 				t.Errorf("Expected %s\n, Got %s", golden, returnedJSON)
 			}

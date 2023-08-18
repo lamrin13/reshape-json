@@ -65,10 +65,6 @@ func reshapeObject(original map[string]interface{}, mappingConfig MappingConfig)
 		)
 		flag = false
 		if strings.Contains(value, "+") {
-			separator, err = getSeparator(value)
-			if err != nil {
-				return nil, err
-			}
 			subKeys := strings.Split(strings.Split(value, "/")[0], "+")
 			var stringVals []string
 			for _, v := range subKeys {
@@ -81,6 +77,10 @@ func reshapeObject(original map[string]interface{}, mappingConfig MappingConfig)
 					return nil, err
 				}
 				stringVals = append(stringVals, strValue)
+			}
+			separator, err = getSeparator(value)
+			if err != nil {
+				return nil, err
 			}
 			if !flag {
 				formattedValue = strings.Join(stringVals, separator)
